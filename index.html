@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>For Palak 🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night-deep:#0a0e27;
+    --night-violet:#1a1040;
+    --plum-glass: rgba(255,255,255,0.07);
+    --plum-glass-border: rgba(255,255,255,0.16);
+    --rose:#ff6b9d;
+    --rose-soft:#ffb3c6;
+    --gold:#ffd670;
+    --cream:#fdf6f0;
+    --cream-dim: rgba(253,246,240,0.72);
+    --shadow-glow: 0 0 40px rgba(255,107,157,0.35);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background: linear-gradient(180deg,var(--night-deep) 0%, var(--night-violet) 55%, #240f3d 100%);
+    color:var(--cream);
+    font-family:'Quicksand', sans-serif;
+    overflow-x:hidden;
+    cursor:none;
+    min-height:100vh;
+  }
+
+  h1,h2,h3, .display{
+    font-family:'Playfair Display', serif;
+  }
+
+  .script{
+    font-family:'Cormorant Garamond', serif;
+  }
+
+  /* ---------- Canvases (fixed atmosphere layers) ---------- */
+  #stars-canvas, #petals-canvas{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    z-index:0;
+    pointer-events:none;
+  }
+  #petals-canvas{ z-index:1; }
+
+  /* ---------- Heart cursor trail ---------- */
+  .cursor-heart{
+    position:fixed;
+    top:0;left:0;
+    width:14px;height:14px;
+    pointer-events:none;
+    z-index:9999;
+    font-size:14px;
+    transform:translate(-50%,-50%);
+    animation: heart-fade 900ms ease-out forwards;
+  }
+  @keyframes heart-fade{
+    0%{opacity:0.9; transform:translate(-50%,-50%) scale(1);}
+    100%{opacity:0; transform:translate(-50%,-120%) scale(0.4);}
+  }
+
+  section{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:60px 20px;
+    text-align:center;
+  }
+
+  .eyebrow{
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    font-size:0.7rem;
+    color:var(--rose-soft);
+    margin-bottom:14px;
+    opacity:0.85;
+  }
+
+  .scroll-cue{
+    position:absolute;
+    bottom:28px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:0.75rem;
+    letter-spacing:0.2em;
+    color:var(--cream-dim);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    animation: bob 2.4s ease-in-out infinite;
+    opacity:0;
+    transition:opacity 0.8s ease;
+  }
+  .scroll-cue.show{opacity:1;}
+  .scroll-cue svg{width:16px;height:16px;}
+  @keyframes bob{
+    0%,100%{transform:translate(-50%,0);}
+    50%{transform:translate(-50%,8px);}
+  }
+
+  /* ---------- Glass card ---------- */
+  .glass{
+    background:var(--plum-glass);
+    border:1px solid var(--plum-glass-border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius:20px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.35);
+  }
+
+  /* ================= LOADING SCREEN ================= */
+  #loading-screen{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background: radial-gradient(circle at 50% 40%, #1a1040 0%, #0a0e27 75%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transition: opacity 1s ease, visibility 1s ease;
+  }
+  #loading-screen.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+
+  .loader-heart{
+    font-size:2.6rem;
+    animation: pulse 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 18px rgba(255,107,157,0.6));
+  }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.18); }
+  }
+  .loader-text{
+    margin-top:22px;
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.3rem;
+    letter-spacing:0.05em;
+    color:var(--cream-dim);
+    min-height:1.6em;
+  }
+  .loader-title{
+    margin-top:6px;
+    font-family:'Playfair Display', serif;
+    font-size:1.6rem;
+    color:var(--rose-soft);
+    opacity:0;
+    animation: fadeUp 1s ease forwards 1.6s;
+  }
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .loader-bar{
+    width:200px;
+    height:2px;
+    margin-top:26px;
+    background:rgba(255,255,255,0.12);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .loader-bar-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--rose),var(--gold));
+    animation: loadfill 2.6s ease forwards;
+  }
+  @keyframes loadfill{ to{ width:100%; } }
+
+  /* ================= HERO / GIFT BOX ================= */
+  #hero{
+    padding-top:100px;
+  }
+  .hero-eyebrow{ animation: fadeUp 1s ease forwards; opacity:0; animation-delay:0.2s;}
+  .hero-title{
+    font-size:clamp(2.2rem, 6vw, 3.6rem);
+    line-height:1.15;
+    opacity:0;
+    animation: fadeUp 1s ease forwards 0.4s;
+  }
+  .hero-title span{ color:var(--rose); }
+  .hero-sub{
+    margin-top:16px;
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.25rem;
+    color:var(--cream-dim);
+    opacity:0;
+    animation: fadeUp 1s ease forwards 0.7s;
+  }
+
+  #gift-box-wrap{
+    margin-top:60px;
+    opacity:0;
+    animation: fadeUp 1s ease forwards 1s;
+  }
+
+  .gift-box{
+    position:relative;
+    width:150px;
+    height:130px;
+    margin:0 auto;
+    cursor:pointer;
+    user-select:none;
+  }
+  .gift-lid{
+    position:absolute;
+    top:-26px; left:-10px;
+    width:170px;
+    height:34px;
+    background:linear-gradient(135deg, var(--rose), #c94277);
+    border-radius:8px;
+    box-shadow:0 6px 18px rgba(255,107,157,0.35);
+    transition: transform 0.7s cubic-bezier(.34,1.56,.64,1), opacity 0.5s ease;
+    transform-origin:left center;
+    z-index:3;
+  }
+  .gift-lid::after{
+    content:'';
+    position:absolute;
+    left:50%; top:-14px;
+    transform:translateX(-50%);
+    width:20px; height:26px;
+    background:var(--gold);
+    border-radius:40% 40% 0 0;
+  }
+  .gift-ribbon-v{
+    position:absolute;
+    left:50%; top:-26px;
+    transform:translateX(-50%);
+    width:18px; height:156px;
+    background:var(--gold);
+    z-index:4;
+  }
+  .gift-body{
+    position:absolute;
+    top:8px; left:0;
+    width:150px;
+    height:122px;
+    background:linear-gradient(135deg, #ff86ac, var(--rose));
+    border-radius:6px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.4);
+  }
+  .gift-box:hover .gift-lid{ transform:translateY(-6px) rotate(-3deg); }
+  .gift-box.opened .gift-lid{
+    transform: translate(-40px,-70px) rotate(-45deg);
+    opacity:0;
+  }
+  .gift-box.opened .gift-ribbon-v{ opacity:0; transition:opacity .3s ease; }
+  .gift-glow{
+    position:absolute;
+    top:-10px; left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,214,112,0.9), transparent 70%);
+    opacity:0;
+    pointer-events:none;
+  }
+  .gift-box.opened .gift-glow{
+    animation: burst 0.9s ease forwards;
+  }
+  @keyframes burst{
+    0%{ width:0; height:0; opacity:0.9; }
+    100%{ width:340px; height:340px; opacity:0; }
+  }
+  .gift-hint{
+    margin-top:22px;
+    font-size:0.8rem;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--rose-soft);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .gift-box.opened ~ .gift-hint{ display:none; }
+
+  .floating-heart{
+    position:fixed;
+    z-index:60;
+    pointer-events:none;
+    font-size:22px;
+    animation: floatUp 2.4s ease-in forwards;
+  }
+  @keyframes floatUp{
+    0%{ transform:translateY(0) translateX(0) scale(0.6) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(-420px) translateX(var(--drift,0px)) scale(1.1) rotate(20deg); opacity:0; }
+  }
+
+  .confetti-piece{
+    position:fixed;
+    z-index:59;
+    pointer-events:none;
+    border-radius:2px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall{
+    to{ transform: translateY(100vh) rotate(540deg); opacity:0.2; }
+  }
+
+  /* ================= LETTER ================= */
+  #letter-section{ display:none; }
+  #letter-section.visible{ display:flex; }
+  .letter-card{
+    max-width:620px;
+    width:100%;
+    padding:46px 40px;
+    text-align:left;
+  }
+  .letter-card h2{
+    font-size:1.5rem;
+    color:var(--rose-soft);
+    margin-bottom:22px;
+    text-align:center;
+  }
+  #typewriter{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.25rem;
+    line-height:1.85;
+    color:var(--cream);
+    white-space:pre-wrap;
+  }
+  #typewriter .cursor-blink{
+    display:inline-block;
+    width:2px; height:1.1em;
+    background:var(--rose-soft);
+    margin-left:2px;
+    vertical-align:middle;
+    animation: blink 0.9s steps(2) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .letter-sign{
+    margin-top:26px;
+    text-align:right;
+    font-family:'Playfair Display', serif;
+    color:var(--rose);
+    font-style:italic;
+    opacity:0;
+  }
+  .letter-sign.show{ opacity:1; transition:opacity 1s ease; }
+
+  /* ================= SCRAPBOOK ================= */
+  #scrapbook-section h2{ font-size:2rem; margin-bottom:8px; }
+  #scrapbook-section .eyebrow{ margin-bottom:6px; }
+  .book-wrap{
+    margin-top:36px;
+    display:flex;
+    align-items:center;
+    gap:22px;
+  }
+  .book-arrow{
+    width:44px;height:44px;
+    border-radius:50%;
+    background:var(--plum-glass);
+    border:1px solid var(--plum-glass-border);
+    color:var(--cream);
+    font-size:1.2rem;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .book-arrow:hover{ transform:scale(1.08); background:rgba(255,107,157,0.25); }
+  .book-page{
+    width:min(360px, 80vw);
+    height:440px;
+    padding:34px 26px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+  .book-page .page-icon{ font-size:2.6rem; }
+  .book-page .page-label{
+    font-size:0.7rem;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    color:var(--rose-soft);
+  }
+  .book-page h3{ font-size:1.3rem; color:var(--cream); }
+  .book-page p{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.1rem;
+    color:var(--cream-dim);
+    line-height:1.6;
+  }
+  .page-photo{
+    width:100%;
+    height:180px;
+    border-radius:12px;
+    background: linear-gradient(135deg, rgba(255,107,157,0.35), rgba(255,214,112,0.25));
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.75rem;
+    color:var(--cream-dim);
+    border:1px dashed var(--plum-glass-border);
+  }
+  .book-dots{
+    margin-top:20px;
+    display:flex; gap:8px;
+  }
+  .book-dots span{
+    width:7px;height:7px;border-radius:50%;
+    background:rgba(255,255,255,0.25);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .book-dots span.active{ background:var(--rose); transform:scale(1.3); }
+
+  /* ================= VIRTUAL GIFTS ================= */
+  .gifts-grid{
+    margin-top:40px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
+    gap:20px;
+    max-width:640px;
+    width:100%;
+  }
+  .gift-tile{
+    padding:26px 10px;
+    cursor:pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .gift-tile:hover{ transform:translateY(-6px); box-shadow:var(--shadow-glow); }
+  .gift-tile .emoji{ font-size:2.2rem; display:block; margin-bottom:10px; }
+  .gift-tile .label{ font-size:0.8rem; letter-spacing:0.05em; color:var(--cream-dim); }
+
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(5,4,20,0.72);
+    backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    z-index:500;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.35s ease;
+    padding:20px;
+  }
+  .modal-overlay.show{ opacity:1; pointer-events:auto; }
+  .modal-card{
+    max-width:420px;
+    width:100%;
+    padding:44px 30px;
+    text-align:center;
+    transform:scale(0.85) translateY(20px);
+    transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .modal-overlay.show .modal-card{ transform:scale(1) translateY(0); }
+  .modal-card .emoji{ font-size:3.4rem; display:block; margin-bottom:14px; animation: pulse 1.4s ease-in-out infinite; }
+  .modal-card h3{ font-size:1.35rem; color:var(--rose-soft); margin-bottom:10px; }
+  .modal-card p{ font-family:'Cormorant Garamond', serif; font-size:1.15rem; color:var(--cream-dim); line-height:1.6;}
+  .modal-close{
+    margin-top:24px;
+    background:none;
+    border:1px solid var(--plum-glass-border);
+    color:var(--cream);
+    padding:10px 26px;
+    border-radius:30px;
+    cursor:pointer;
+    font-family:'Quicksand', sans-serif;
+    letter-spacing:0.05em;
+    transition: background .2s ease;
+  }
+  .modal-close:hover{ background:rgba(255,107,157,0.25); }
+
+  /* ================= 100 REASONS ================= */
+  .reasons-counter{
+    font-family:'Playfair Display', serif;
+    font-size:0.85rem;
+    letter-spacing:0.15em;
+    color:var(--gold);
+    margin-top:8px;
+  }
+  .reason-card{
+    margin-top:30px;
+    width:min(520px, 88vw);
+    min-height:150px;
+    padding:38px 32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .reason-card p{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.5rem;
+    color:var(--cream);
+    line-height:1.5;
+  }
+  .reason-btn{
+    margin-top:30px;
+    background:linear-gradient(135deg, var(--rose), #c9457c);
+    border:none;
+    color:#fff;
+    padding:15px 38px;
+    border-radius:32px;
+    font-size:0.95rem;
+    letter-spacing:0.06em;
+    cursor:pointer;
+    box-shadow:0 10px 26px rgba(255,107,157,0.35);
+    transition: transform 0.2s ease;
+    font-family:'Quicksand', sans-serif;
+    font-weight:600;
+  }
+  .reason-btn:hover{ transform:translateY(-3px); }
+  .reason-btn:active{ transform:translateY(0); }
+
+  /* ================= FINALE ================= */
+  #finale-section{
+    background: radial-gradient(ellipse at 50% 20%, #140a30 0%, #05040f 75%);
+    min-height:100vh;
+    position:relative;
+    overflow:hidden;
+  }
+  #finale-canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+  }
+  .moon{
+    position:absolute;
+    width:90px;height:90px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #fff9e8, var(--gold) 70%);
+    box-shadow:0 0 60px rgba(255,214,112,0.55);
+    top:100%;
+    left:50%;
+    transform:translateX(-50%);
+    transition: top 3s ease-out;
+    z-index:2;
+  }
+  .moon.risen{ top:14%; }
+
+  .finale-content{
+    position:relative;
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:26px;
+    opacity:0;
+    transition:opacity 1.5s ease;
+  }
+  .finale-content.show{ opacity:1; }
+  .finale-line{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size:clamp(1.4rem, 4vw, 2.2rem);
+    max-width:640px;
+    line-height:1.5;
+    color:var(--cream);
+  }
+  .finale-line .accent{ color:var(--rose); font-style:normal; }
+  .glow-heart{
+    font-size:3rem;
+    filter: drop-shadow(0 0 24px rgba(255,107,157,0.85));
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .forever-btn{
+    margin-top:14px;
+    background:transparent;
+    border:1.5px solid var(--rose);
+    color:var(--rose-soft);
+    padding:16px 46px;
+    border-radius:36px;
+    font-family:'Playfair Display', serif;
+    font-size:1.05rem;
+    letter-spacing:0.08em;
+    cursor:pointer;
+    transition: all 0.35s ease;
+  }
+  .forever-btn:hover{
+    background:var(--rose);
+    color:#fff;
+    box-shadow:0 0 40px rgba(255,107,157,0.6);
+  }
+
+  /* ================= FOREVER OVERLAY ================= */
+  #forever-overlay{
+    position:fixed; inset:0;
+    z-index:2000;
+    background:radial-gradient(ellipse at 50% 50%, #1a0f38, #05040f 80%);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 1.2s ease;
+    text-align:center;
+    padding:20px;
+  }
+  #forever-overlay.show{ opacity:1; pointer-events:auto; }
+  #forever-overlay h2{
+    font-size:clamp(1.8rem,5vw,2.8rem);
+    color:var(--rose-soft);
+    max-width:700px;
+    line-height:1.4;
+  }
+  #forever-overlay .sub{
+    margin-top:14px;
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.2rem;
+    color:var(--cream-dim);
+  }
+  .drift-heart{
+    position:fixed;
+    z-index:1999;
+    pointer-events:none;
+    font-size:20px;
+    animation: driftUp linear forwards;
+  }
+  @keyframes driftUp{
+    from{ transform:translateY(0); opacity:0.9; }
+    to{ transform: translateY(-110vh); opacity:0; }
+  }
+
+  /* ================= MUSIC TOGGLE ================= */
+  #music-toggle{
+    position:fixed;
+    bottom:22px;
+    right:22px;
+    z-index:9998;
+    width:50px;height:50px;
+    border-radius:50%;
+    background:var(--plum-glass);
+    border:1px solid var(--plum-glass-border);
+    backdrop-filter:blur(10px);
+    color:var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem;
+    cursor:pointer;
+  }
+
+  footer{
+    text-align:center;
+    padding:30px 20px 50px;
+    font-size:0.75rem;
+    letter-spacing:0.1em;
+    color:rgba(253,246,240,0.35);
+  }
+
+  @media (max-width:520px){
+    .book-wrap{ gap:10px; }
+    .gifts-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= LOADING SCREEN ================= -->
+<div id="loading-screen">
+  <div class="loader-heart">❤️</div>
+  <div class="loader-title">Happy Girlfriend's Day, Palak</div>
+  <div class="loader-text" id="loader-text">✨ Preparing your surprise...</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<canvas id="stars-canvas"></canvas>
+<canvas id="petals-canvas"></canvas>
+
+<audio id="bg-music" loop preload="none">
+  <!-- Add your own romantic instrumental track: replace the src below -->
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+<button id="music-toggle" title="Toggle music">🔇</button>
+
+<!-- ================= HERO / GIFT BOX ================= -->
+<section id="hero">
+  <div class="eyebrow hero-eyebrow">a little something for you</div>
+  <h1 class="hero-title">Hi <span>Palak</span>, I made you something 🌸</h1>
+  <p class="hero-sub script">Happy Girlfriend's Day — open your gift to begin.</p>
+
+  <div id="gift-box-wrap">
+    <div class="gift-box" id="gift-box">
+      <div class="gift-glow"></div>
+      <div class="gift-ribbon-v"></div>
+      <div class="gift-lid"></div>
+      <div class="gift-body"></div>
+    </div>
+    <div class="gift-hint">tap the box</div>
+  </div>
+  <div class="scroll-cue" id="hero-scroll-cue">
+    keep scrolling
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m0 0l-6-6m6 6l6-6"/></svg>
+  </div>
+</section>
+
+<!-- ================= LOVE LETTER ================= -->
+<section id="letter-section">
+  <div class="eyebrow">for your eyes only</div>
+  <div class="glass letter-card">
+    <h2>A letter for you 💌</h2>
+    <div id="typewriter"></div>
+    <div class="letter-sign script" id="letter-sign">— always yours</div>
+  </div>
+  <div class="scroll-cue" id="letter-scroll-cue">
+    the story continues
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m0 0l-6-6m6 6l6-6"/></svg>
+  </div>
+</section>
+
+<!-- ================= SCRAPBOOK ================= -->
+<section id="scrapbook-section">
+  <div class="eyebrow">our little book</div>
+  <h2>A page from us</h2>
+  <div class="book-wrap">
+    <div class="book-arrow" id="book-prev">‹</div>
+    <div class="glass book-page" id="book-page"></div>
+    <div class="book-arrow" id="book-next">›</div>
+  </div>
+  <div class="book-dots" id="book-dots"></div>
+</section>
+
+<!-- ================= VIRTUAL GIFTS ================= -->
+<section id="gifts-section">
+  <div class="eyebrow">click to open</div>
+  <h2>A few gifts, just for you</h2>
+  <div class="gifts-grid" id="gifts-grid"></div>
+</section>
+
+<!-- ================= 100 REASONS ================= -->
+<section id="reasons-section">
+  <div class="eyebrow">an incomplete list</div>
+  <h2>100 reasons I love you</h2>
+  <div class="reasons-counter" id="reason-counter">Reason 1 / 100</div>
+  <div class="glass reason-card">
+    <p id="reason-text"></p>
+  </div>
+  <button class="reason-btn" id="reason-btn">Next reason →</button>
+</section>
+
+<!-- ================= FINALE ================= -->
+<section id="finale-section">
+  <canvas id="finale-canvas"></canvas>
+  <div class="moon" id="moon"></div>
+  <div class="finale-content" id="finale-content">
+    <p class="finale-line">Out of billions of people in this world...<br><span class="accent">my favorite is you.</span></p>
+    <div class="glow-heart">❤️</div>
+    <button class="forever-btn" id="forever-btn">Forever ❤️</button>
+  </div>
+</section>
+
+<footer>made with ❤️ for palak</footer>
+
+<!-- ================= FOREVER OVERLAY ================= -->
+<div id="forever-overlay">
+  <div>
+    <h2 class="script">Happy Girlfriend's Day, my love.<br>Here's to every day after this one, with you.</h2>
+    <p class="sub">forever and always ❤️</p>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   CUSTOMIZE ME
+   Edit the arrays / strings below to personalize the page.
+===================================================== */
+const HER_NAME = "Palak";
+
+const LOVE_LETTER = `My dearest Palak,
+
+I don't think I have the right words to tell you everything you mean to me — but I wanted to try anyway.
+
+You make ordinary days feel like something worth remembering. The way you laugh, the way you care about everyone around you, the way you make me want to be better — all of it, I notice, and all of it, I'm grateful for.
+
+This little page is just a small piece of everything I feel. There's more waiting for you below.
+
+Keep scrolling, my love.`;
+
+const SCRAPBOOK_PAGES = [
+  { icon:"📸", label:"memory 01", title:"The day we met", text:"Add your own story here — where it happened, what you were thinking, the little detail you still remember." },
+  { icon:"😂", label:"memory 02", title:"That one inside joke", text:"Describe the moment that still makes you both laugh, even now." },
+  { icon:"💖", label:"memory 03", title:"My favorite moment with you", text:"Write about the moment that means the most to you so far." },
+  { icon:"🌍", label:"memory 04", title:"Our future", text:"Write a few lines about the dreams and plans you want to build together." }
+];
+
+const VIRTUAL_GIFTS = [
+  { emoji:"🌹", label:"Rose", title:"A rose for you", text:"As beautiful and rare as you are. This one never wilts." },
+  { emoji:"🧸", label:"Teddy", title:"A hug when I'm not there", text:"For the days I can't hug you myself — let this one hold your place." },
+  { emoji:"🍫", label:"Chocolate", title:"Something sweet", text:"Sweet, but still not as sweet as you." },
+  { emoji:"💍", label:"Promise", title:"A small promise", text:"Not a ring, just yet — but a promise that I'm not going anywhere." },
+  { emoji:"💌", label:"Secret Letter", title:"A secret, just for you", text:"You already know it. But I'll say it again anyway — I love you." }
+];
+
+const REASONS = [
+  "The way you laugh at your own jokes before you even finish them.",
+  "How you remember the smallest things I say.",
+  "Your morning voice.",
+  "The way your eyes crinkle when you smile.",
+  "How you take care of everyone before yourself.",
+  "The way you say my name.",
+  "Your stubbornness, even when it drives me crazy.",
+  "How you make any place feel like home.",
+  "Your ridiculous playlists.",
+  "The way you dance when you think no one's watching.",
+  "How honest you are, even when it's hard.",
+  "Your patience with me on my worst days.",
+  "The way you get excited over small things.",
+  "How you always know when something's wrong.",
+  "Your handwriting.",
+  "The way you hum without realizing it.",
+  "How you fight for the people you love.",
+  "Your terrible-but-endearing puns.",
+  "The way you look right after waking up.",
+  "How safe I feel when I'm with you.",
+  "Your courage in things I'd be scared to try.",
+  "The way you say 'okay fine' when you're pretending to be annoyed.",
+  "How you remember everyone's birthdays.",
+  "Your competitive streak over the smallest games.",
+  "The way you care for the people who can't repay it.",
+  "How you make deadlines less stressful just by being around.",
+  "Your unshakable loyalty.",
+  "The way you get lost in a good book.",
+  "How you never let me stay upset for long.",
+  "Your kindness to strangers.",
+  "The way your voice softens when you're tired.",
+  "How you always share your food, even reluctantly.",
+  "Your weird obsession with something so specific it's charming.",
+  "The way you plan things down to the smallest detail.",
+  "How you make me want to be a better person.",
+  "Your bravery in speaking your mind.",
+  "The way you say 'I told you so' with a grin.",
+  "How you notice when I'm quiet and ask why.",
+  "Your creativity — you see things differently.",
+  "The way you hold onto old memories so carefully.",
+  "How your presence calms a chaotic room.",
+  "Your ability to make me laugh on a bad day.",
+  "The way you say 'be careful' every single time.",
+  "How you never give up on the people you care about.",
+  "Your curiosity about everything.",
+  "The way you get excited for little celebrations.",
+  "How you make even boring errands feel fun.",
+  "Your fierce opinions about the smallest things.",
+  "The way you comfort people without needing to be asked.",
+  "How you always find the silver lining.",
+  "Your smile, in literally every single photo.",
+  "The way you remember song lyrics but never the actual facts you studied.",
+  "How you make time for people, even when you're tired.",
+  "Your effort in everything you do.",
+  "The way you say goodnight, every night.",
+  "How you never let a joke die too soon.",
+  "Your quiet strength on hard days.",
+  "The way you still get shy sometimes.",
+  "How you make plans just to see me.",
+  "Your instinct to protect the people you love.",
+  "The way you say 'trust me' and mean it.",
+  "How your bad days still make room for others.",
+  "Your habit of overexplaining things you're excited about.",
+  "The way you remember our first conversation.",
+  "How you never make me feel small.",
+  "Your comfort in silence, when words aren't needed.",
+  "The way you always show up.",
+  "How you turn ordinary evenings into favorite memories.",
+  "Your honesty about your feelings.",
+  "The way you say 'just five more minutes' and mean thirty.",
+  "How your energy shifts a whole room.",
+  "Your patience explaining things to me twice.",
+  "The way you get nostalgic over old songs.",
+  "How you never forget to check in on me.",
+  "Your specific, very particular taste in everything.",
+  "The way you say sorry, even when you don't have to.",
+  "How you make future plans with such certainty.",
+  "Your grace under pressure.",
+  "The way you light up talking about your passions.",
+  "How you make me feel chosen, every day.",
+  "Your loyalty to your friends.",
+  "The way you say 'I mean it' when you really do.",
+  "How you find joy in the smallest things.",
+  "Your habit of saving things 'for later' and forgetting them, adorably.",
+  "The way you ask 'did you eat?' before anything else.",
+  "How you remain calm when everyone else panics.",
+  "Your soft spot for animals.",
+  "The way you make plans feel like adventures.",
+  "How you never let me apologize for too long.",
+  "Your unmatched sense of humor.",
+  "The way you say 'we'll figure it out' and I believe you.",
+  "How you make even arguments end in laughter eventually.",
+  "Your thoughtful gifts, always picked with care.",
+  "The way you remember what I like without me saying.",
+  "How you make me proud just by being you.",
+  "Your resilience through hard times.",
+  "The way you say my favorite things without even trying.",
+  "How every single day with you feels a little brighter.",
+  "And the simplest reason of all — because you're you, Palak."
+];
+
+/* =====================================================
+   LOADING SCREEN
+===================================================== */
+const loaderMessages = ["✨ Preparing your surprise...", "❤️ Wrapping up something special...", "🌸 Almost there..."];
+let loaderIdx = 0;
+const loaderTextEl = document.getElementById('loader-text');
+const loaderInterval = setInterval(()=>{
+  loaderIdx = (loaderIdx+1) % loaderMessages.length;
+  loaderTextEl.textContent = loaderMessages[loaderIdx];
+}, 900);
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{
+    clearInterval(loaderInterval);
+    document.getElementById('loading-screen').classList.add('hide');
+    document.getElementById('hero-scroll-cue').classList.add('show');
+  }, 2800);
+});
+
+/* =====================================================
+   HEART CURSOR TRAIL
+===================================================== */
+let lastTrail = 0;
+document.addEventListener('mousemove', (e)=>{
+  const now = Date.now();
+  if(now - lastTrail < 60) return;
+  lastTrail = now;
+  const heart = document.createElement('div');
+  heart.className = 'cursor-heart';
+  heart.textContent = Math.random() > 0.5 ? '❤' : '💗';
+  heart.style.left = e.clientX + 'px';
+  heart.style.top = e.clientY + 'px';
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(), 900);
+});
+
+/* =====================================================
+   STARFIELD CANVAS
+===================================================== */
+const starsCanvas = document.getElementById('stars-canvas');
+const sctx = starsCanvas.getContext('2d');
+let stars = [];
+function resizeCanvases(){
+  [starsCanvas, document.getElementById('petals-canvas')].forEach(c=>{
+    c.width = window.innerWidth;
+    c.height = document.body.scrollHeight;
+  });
+}
+function initStars(){
+  stars = [];
+  const count = Math.floor((starsCanvas.width * starsCanvas.height) / 9000);
+  for(let i=0;i<count;i++){
+    stars.push({
+      x: Math.random()*starsCanvas.width,
+      y: Math.random()*starsCanvas.height,
+      r: Math.random()*1.4 + 0.3,
+      speed: Math.random()*0.02 + 0.005,
+      offset: Math.random()*Math.PI*2
+    });
+  }
+}
+function drawStars(t){
+  sctx.clearRect(0,0,starsCanvas.width, starsCanvas.height);
+  stars.forEach(s=>{
+    const twinkle = 0.5 + 0.5*Math.sin(t*s.speed*3 + s.offset);
+    sctx.beginPath();
+    sctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    sctx.fillStyle = `rgba(255,246,235,${0.25 + twinkle*0.65})`;
+    sctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+
+/* =====================================================
+   FALLING ROSE PETALS
+===================================================== */
+const petalsCanvas = document.getElementById('petals-canvas');
+const pctx = petalsCanvas.getContext('2d');
+let petals = [];
+function initPetals(){
+  petals = [];
+  for(let i=0;i<26;i++){
+    petals.push({
+      x: Math.random()*petalsCanvas.width,
+      y: Math.random()*petalsCanvas.height,
+      size: Math.random()*8+6,
+      speedY: Math.random()*0.6+0.3,
+      speedX: Math.random()*0.6-0.3,
+      rot: Math.random()*360,
+      rotSpeed: Math.random()*1-0.5,
+      opacity: Math.random()*0.4+0.4
+    });
+  }
+}
+function drawPetals(){
+  pctx.clearRect(0,0,petalsCanvas.width, petalsCanvas.height);
+  petals.forEach(p=>{
+    pctx.save();
+    pctx.translate(p.x, p.y);
+    pctx.rotate(p.rot * Math.PI/180);
+    pctx.fillStyle = `rgba(255,107,157,${p.opacity})`;
+    pctx.beginPath();
+    pctx.ellipse(0,0,p.size*0.6,p.size, Math.PI/4, 0, Math.PI*2);
+    pctx.fill();
+    pctx.restore();
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.rot += p.rotSpeed;
+    if(p.y > petalsCanvas.height){
+      p.y = -10;
+      p.x = Math.random()*petalsCanvas.width;
+    }
+  });
+  requestAnimationFrame(drawPetals);
+}
+
+resizeCanvases();
+initStars();
+initPetals();
+drawStars(0);
+drawPetals();
+window.addEventListener('resize', ()=>{ resizeCanvases(); initStars(); initPetals(); });
+setTimeout(resizeCanvases, 1000); // catch late layout shifts
+
+/* =====================================================
+   CONFETTI + FLOATING HEARTS HELPERS
+===================================================== */
+function burstConfetti(x, y, count=40){
+  const colors = ['#ff6b9d','#ffd670','#ff86ac','#fdf6f0','#c9457c'];
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = Math.random()*8+5;
+    el.style.width = size+'px';
+    el.style.height = size*0.5+'px';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.left = (x + (Math.random()*160-80)) + 'px';
+    el.style.top = y + 'px';
+    const duration = Math.random()*1.5+1.5;
+    el.style.animationDuration = duration+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), duration*1000+200);
+  }
+}
+function burstHearts(x, y, count=14){
+  const emojis = ['❤️','💗','💖','💕'];
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'floating-heart';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left = (x + (Math.random()*100-50)) + 'px';
+    el.style.top = y + 'px';
+    el.style.setProperty('--drift', (Math.random()*140-70)+'px');
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 2500);
+  }
+}
+
+/* =====================================================
+   GIFT BOX
+===================================================== */
+const giftBox = document.getElementById('gift-box');
+let giftOpened = false;
+giftBox.addEventListener('click', ()=>{
+  if(giftOpened) return;
+  giftOpened = true;
+  giftBox.classList.add('opened');
+  const rect = giftBox.getBoundingClientRect();
+  burstHearts(rect.left+rect.width/2, rect.top);
+  burstConfetti(rect.left+rect.width/2, rect.top);
+  tryPlayMusic();
+  setTimeout(()=>{
+    document.getElementById('letter-section').classList.add('visible');
+    document.getElementById('letter-section').scrollIntoView({behavior:'smooth'});
+    startTypewriter();
+  }, 1100);
+});
+
+/* =====================================================
+   TYPEWRITER LETTER
+===================================================== */
+let typewriterStarted = false;
+function startTypewriter(){
+  if(typewriterStarted) return;
+  typewriterStarted = true;
+  const target = document.getElementById('typewriter');
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor-blink';
+  let i = 0;
+  const text = LOVE_LETTER;
+  function type(){
+    if(i <= text.length){
+      target.textContent = text.slice(0,i);
+      target.appendChild(cursor);
+      i++;
+      setTimeout(type, 22);
+    } else {
+      document.getElementById('letter-sign').classList.add('show');
+      document.getElementById('letter-scroll-cue').classList.add('show');
+    }
+  }
+  type();
+}
+
+/* =====================================================
+   SCRAPBOOK
+===================================================== */
+let bookIdx = 0;
+const bookPageEl = document.getElementById('book-page');
+const bookDotsEl = document.getElementById('book-dots');
+SCRAPBOOK_PAGES.forEach((_,i)=>{
+  const dot = document.createElement('span');
+  if(i===0) dot.classList.add('active');
+  bookDotsEl.appendChild(dot);
+});
+function renderBookPage(){
+  const p = SCRAPBOOK_PAGES[bookIdx];
+  bookPageEl.style.opacity = 0;
+  setTimeout(()=>{
+    bookPageEl.innerHTML = `
+      <div class="page-label">${p.label}</div>
+      <div class="page-photo">📷 add a photo here</div>
+      <div class="page-icon">${p.icon}</div>
+      <h3>${p.title}</h3>
+      <p>${p.text}</p>
+    `;
+    bookPageEl.style.opacity = 1;
+    [...bookDotsEl.children].forEach((d,i)=>d.classList.toggle('active', i===bookIdx));
+  }, 200);
+}
+document.getElementById('book-prev').addEventListener('click', ()=>{
+  bookIdx = (bookIdx - 1 + SCRAPBOOK_PAGES.length) % SCRAPBOOK_PAGES.length;
+  renderBookPage();
+});
+document.getElementById('book-next').addEventListener('click', ()=>{
+  bookIdx = (bookIdx + 1) % SCRAPBOOK_PAGES.length;
+  renderBookPage();
+});
+renderBookPage();
+
+/* =====================================================
+   VIRTUAL GIFTS
+===================================================== */
+const giftsGrid = document.getElementById('gifts-grid');
+VIRTUAL_GIFTS.forEach((g)=>{
+  const tile = document.createElement('div');
+  tile.className = 'glass gift-tile';
+  tile.innerHTML = `<span class="emoji">${g.emoji}</span><span class="label">${g.label}</span>`;
+  tile.addEventListener('click', (e)=>{
+    openGiftModal(g);
+    burstHearts(e.clientX, e.clientY, 10);
+    burstConfetti(e.clientX, e.clientY, 26);
+  });
+  giftsGrid.appendChild(tile);
+});
+
+const modalOverlay = document.createElement('div');
+modalOverlay.className = 'modal-overlay';
+modalOverlay.innerHTML = `
+  <div class="glass modal-card">
+    <span class="emoji" id="modal-emoji"></span>
+    <h3 id="modal-title"></h3>
+    <p id="modal-text"></p>
+    <button class="modal-close" id="modal-close">close</button>
+  </div>
+`;
+document.body.appendChild(modalOverlay);
+function openGiftModal(g){
+  document.getElementById('modal-emoji').textContent = g.emoji;
+  document.getElementById('modal-title').textContent = g.title;
+  document.getElementById('modal-text').textContent = g.text;
+  modalOverlay.classList.add('show');
+}
+document.getElementById('modal-close').addEventListener('click', ()=>modalOverlay.classList.remove('show'));
+modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) modalOverlay.classList.remove('show'); });
+
+/* =====================================================
+   100 REASONS
+===================================================== */
+let reasonIdx = 0;
+const reasonTextEl = document.getElementById('reason-text');
+const reasonCounterEl = document.getElementById('reason-counter');
+function showReason(){
+  reasonTextEl.style.opacity = 0;
+  setTimeout(()=>{
+    reasonTextEl.textContent = REASONS[reasonIdx];
+    reasonCounterEl.textContent = `Reason ${reasonIdx+1} / ${REASONS.length}`;
+    reasonTextEl.style.transition = 'opacity 0.4s ease';
+    reasonTextEl.style.opacity = 1;
+  }, 200);
+}
+document.getElementById('reason-btn').addEventListener('click', (e)=>{
+  reasonIdx = (reasonIdx + 1) % REASONS.length;
+  showReason();
+  if(reasonIdx % 10 === 0){
+    burstHearts(e.clientX, e.clientY, 8);
+  }
+});
+showReason();
+
+/* =====================================================
+   FINALE: moon rise, fireworks, forever
+===================================================== */
+const finaleSection = document.getElementById('finale-section');
+const moonEl = document.getElementById('moon');
+const finaleContent = document.getElementById('finale-content');
+let finaleTriggered = false;
+
+const finaleObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting && !finaleTriggered){
+      finaleTriggered = true;
+      setTimeout(()=>moonEl.classList.add('risen'), 300);
+      setTimeout(()=>finaleContent.classList.add('show'), 1800);
+      setTimeout(()=>startFireworks(), 2200);
+    }
+  });
+}, { threshold:0.4 });
+finaleObserver.observe(finaleSection);
+
+const fCanvas = document.getElementById('finale-canvas');
+const fctx = fCanvas.getContext('2d');
+function resizeFinale(){
+  fCanvas.width = finaleSection.clientWidth;
+  fCanvas.height = finaleSection.clientHeight;
+}
+resizeFinale();
+window.addEventListener('resize', resizeFinale);
+
+let fireworkParticles = [];
+function spawnFirework(){
+  const x = Math.random()*fCanvas.width*0.7 + fCanvas.width*0.15;
+  const y = Math.random()*fCanvas.height*0.4 + fCanvas.height*0.15;
+  const colors = ['#ff6b9d','#ffd670','#ff86ac','#fdf6f0'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  for(let i=0;i<36;i++){
+    const angle = (Math.PI*2*i)/36;
+    const speed = Math.random()*2.5+1.5;
+    fireworkParticles.push({
+      x, y,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      life: 60,
+      color
+    });
+  }
+}
+let fireworkInterval;
+function startFireworks(){
+  spawnFirework();
+  fireworkInterval = setInterval(()=>{
+    if(Math.random() > 0.4) spawnFirework();
+  }, 900);
+  animateFireworks();
+}
+function animateFireworks(){
+  fctx.clearRect(0,0,fCanvas.width, fCanvas.height);
+  fireworkParticles.forEach(p=>{
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.02;
+    p.life -= 1;
+    fctx.globalAlpha = Math.max(p.life/60, 0);
+    fctx.fillStyle = p.color;
+    fctx.beginPath();
+    fctx.arc(p.x, p.y, 2, 0, Math.PI*2);
+    fctx.fill();
+  });
+  fctx.globalAlpha = 1;
+  fireworkParticles = fireworkParticles.filter(p=>p.life>0);
+  requestAnimationFrame(animateFireworks);
+}
+
+/* =====================================================
+   FOREVER OVERLAY
+===================================================== */
+const foreverOverlay = document.getElementById('forever-overlay');
+document.getElementById('forever-btn').addEventListener('click', ()=>{
+  foreverOverlay.classList.add('show');
+  let count = 0;
+  const driftTimer = setInterval(()=>{
+    spawnDriftHeart();
+    count++;
+    if(count > 60) clearInterval(driftTimer);
+  }, 150);
+});
+function spawnDriftHeart(){
+  const el = document.createElement('div');
+  el.className = 'drift-heart';
+  el.textContent = ['❤️','💗','💖','💕','✨'][Math.floor(Math.random()*5)];
+  el.style.left = Math.random()*100 + 'vw';
+  el.style.bottom = '-40px';
+  const duration = Math.random()*3+4;
+  el.style.animationDuration = duration+'s';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), duration*1000+200);
+}
+
+/* =====================================================
+   BACKGROUND MUSIC
+===================================================== */
+const bgMusic = document.getElementById('bg-music');
+const musicToggle = document.getElementById('music-toggle');
+let musicOn = false;
+function tryPlayMusic(){
+  bgMusic.volume = 0.35;
+  bgMusic.play().then(()=>{
+    musicOn = true;
+    musicToggle.textContent = '🔊';
+  }).catch(()=>{
+    // autoplay blocked or no music file provided - user can tap the button
+    musicOn = false;
+    musicToggle.textContent = '🔇';
+  });
+}
+musicToggle.addEventListener('click', ()=>{
+  if(musicOn){
+    bgMusic.pause();
+    musicOn = false;
+    musicToggle.textContent = '🔇';
+  } else {
+    tryPlayMusic();
+  }
+});
+</script>
+</body>
+</html>
